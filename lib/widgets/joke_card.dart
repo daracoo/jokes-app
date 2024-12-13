@@ -16,6 +16,7 @@ class JokeCard extends StatelessWidget {
           child: Text(
             type,
             style: const TextStyle(fontSize: 21),
+            textAlign: TextAlign.center,
           ),
         ),
       ),
