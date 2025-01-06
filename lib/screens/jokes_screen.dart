@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
-import '../services/api.dart';
 import '../models/joke.dart';
+import '../services/api.dart';
 
 class JokesScreen extends StatelessWidget {
   final String jokeType;
+  final Function(Joke) toggleFavorite;
+  final bool Function(Joke) isFavorite;
 
-  const JokesScreen({required this.jokeType});
+  const JokesScreen({
+    required this.jokeType,
+    required this.toggleFavorite,
+    required this.isFavorite,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          '$jokeType jokes',
+          '$jokeType Jokes',
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
@@ -20,83 +26,62 @@ class JokesScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.deepPurple,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.cyan],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: FutureBuilder<List<Joke>>(
-          future: ApiService.fetchJokesByType(jokeType),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  'Error: ${snapshot.error}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.redAccent,
-                    fontStyle: FontStyle.italic,
+      body: FutureBuilder<List<Joke>>(
+        future: ApiService.fetchJokesByType(jokeType),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: const TextStyle(color: Colors.red, fontSize: 18),
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                'No jokes found.',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            );
+          } else {
+            final jokes = snapshot.data!;
+            return ListView.builder(
+              itemCount: jokes.length,
+              itemBuilder: (context, index) {
+                final joke = jokes[index];
+                return Card(
+                  margin: const EdgeInsets.all(8.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
                   ),
-                ),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const Center(
-                child: Text(
-                  'No jokes found.',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              );
-            } else {
-              final jokes = snapshot.data!;
-              return ListView.builder(
-                itemCount: jokes.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin: const EdgeInsets.all(8.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
+                  elevation: 4,
+                  child: ListTile(
+                    title: Text(
+                      joke.setup,
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            jokes[index].setup,
-                            style: const TextStyle(
-                              fontSize: 21,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            jokes[index].punchline,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontStyle: FontStyle.italic,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
+                    subtitle: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        joke.punchline,
+                        style: const TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
                       ),
                     ),
-                  );
-                },
-              );
-            }
-          },
-        ),
+                    trailing: IconButton(
+                      icon: Icon(
+                        isFavorite(joke) ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite(joke) ? Colors.red : Colors.grey,
+                      ),
+                      onPressed: () => toggleFavorite(joke),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

@@ -3,6 +3,8 @@ import '../services/api.dart';
 import '../widgets/joke_card.dart';
 import 'jokes_screen.dart';
 import 'random_joke_screen.dart';
+import 'fav_jokes_screen.dart';
+import '../models/joke.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -11,11 +13,26 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<String>> jokeTypes;
+  final Set<Joke> _favorites = {}; // Store favorite jokes
 
   @override
   void initState() {
     super.initState();
     jokeTypes = ApiService.fetchJokeTypes();
+  }
+
+  void toggleFavorite(Joke joke) {
+    setState(() {
+      if (_favorites.contains(joke)) {
+        _favorites.remove(joke);
+      } else {
+        _favorites.add(joke);
+      }
+    });
+  }
+
+  bool isFavorite(Joke joke) {
+    return _favorites.contains(joke);
   }
 
   @override
@@ -31,6 +48,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: Colors.cyan,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            color: Colors.red,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FavoritesScreen(favorites: _favorites),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.lightbulb_circle),
             color: Colors.amber,
@@ -81,7 +110,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => JokesScreen(jokeType: types[index]),
+                            builder: (context) => JokesScreen(
+                              jokeType: types[index],
+                              toggleFavorite: toggleFavorite,
+                              isFavorite: isFavorite,
+                            ),
                           ),
                         );
                       },
