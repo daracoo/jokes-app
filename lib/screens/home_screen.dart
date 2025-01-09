@@ -5,20 +5,38 @@ import 'jokes_screen.dart';
 import 'random_joke_screen.dart';
 import 'fav_jokes_screen.dart';
 import '../models/joke.dart';
+import '../services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
+  final NotificationService notificationService;
+
+  const HomeScreen({required this.notificationService});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<String>> jokeTypes;
-  final Set<Joke> _favorites = {}; // Store favorite jokes
+  final Set<Joke> _favorites = {};
 
   @override
   void initState() {
     super.initState();
     jokeTypes = ApiService.fetchJokeTypes();
+
+    widget.notificationService.initialize();
+
+    widget.notificationService.showNotification(
+      title: "Test Notification",
+      body: "This is a test notification",
+    );
+
+    widget.notificationService.scheduleDailyNotification(
+      joke: "Here's your joke of the day! Open the app to see more!",
+      hour: 1,
+      minute: 21,
+    );
   }
 
   void toggleFavorite(Joke joke) {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "850310345041",
+    "project_id": "jokes-app-cccbc",
+    "storage_bucket": "jokes-app-cccbc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850310345041:android:793e6e66da345193f66370",
+        "android_client_info": {
+          "package_name": "com.example.jokes_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsobZN5h5SxokMJ3HrsdbNQxUDSJ8Vd30"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
